@@ -91,7 +91,6 @@ def shortest_path(source, target):
 
     If no possible path, returns None.
     """
-    successFullPaths = []
     explored = []
     frontier = QueueFrontier()
 
@@ -99,33 +98,31 @@ def shortest_path(source, target):
         if neighbor[1] == target:
             return [neighbor]
 
-        frontier.add(Node(neighbor, None, []))
+        frontier.add(Node(neighbor[1], None, neighbor[0]))
 
     while True:
         if frontier.empty():
-            break
+            return None
 
         node = frontier.remove()
-        explored.append(node)
-
-        if node.state[1] == target:
-            node.action.append(node.state)
-            successFullPaths.append(node.action)
-            continue
+        explored.append(node.state)
 
         # Expand node, add resulting nodes to the frontier if they aren't already in the frontier or the explored set
-        for neighbor in neighbors_for_person(node.state[1]):
-            if not any(node.state == neighbor for node in explored) and not frontier.contains_state(neighbor):
-                action = node.action.copy()
-                action.append(node.state)
-                newNode = Node(neighbor, node, action)
-                frontier.add(newNode)
+        for movie_id, person_id in neighbors_for_person(node.state):
+            if person_id == target:
+                return get_path(Node(person_id, node, movie_id))
 
-    if len(successFullPaths) > 0:
-        shortest = min(successFullPaths, key=lambda x: len(x))
-        return shortest
-    else:
-        return None
+            if person_id not in explored and not frontier.contains_state(person_id):
+                frontier.add(Node(person_id, node, movie_id))
+
+
+def get_path(node):
+    path = []
+    while True:
+        path.append((node.action, node.state))
+        node = node.parent
+        if node == None:
+            return path[::-1]
 
 
 def person_id_for_name(name):
