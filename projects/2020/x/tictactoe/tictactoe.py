@@ -127,28 +127,36 @@ def minimax(board):
     # X tries to maximize score (MAX(X))
     # O tries to minimize score (MIN(O))
     if currentPlayer == X:
-        return max_value(board)
+        return max_value(board)[1]
     else:
-        return min_value(board)
+        return min_value(board)[1]
 
 
 def max_value(board):
     if terminal(board):
-        return utility(board)
+        return (utility(board), None)
 
     value = -sys.maxsize-1
+    optimalAction = None
     for action in actions(board):
-        value = max(value, min_value(result(board, action)))
+        possibleResult = min_value(result(board, action))
+        if (possibleResult[0] > value):
+            value = possibleResult[0]
+            optimalAction = action
 
-    return value
+    return (value, optimalAction)
 
 
 def min_value(board):
     if terminal(board):
-        utility(board)
+        return (utility(board), None)
 
     value = sys.maxsize
+    optimalAction = None
     for action in actions(board):
-        value = min(value, max_value(result(board, action)))
+        possibleResult = max_value(result(board, action))
+        if (possibleResult[0] < value):
+            value = possibleResult[0]
+            optimalAction = action
 
-    return value
+    return (value, optimalAction)

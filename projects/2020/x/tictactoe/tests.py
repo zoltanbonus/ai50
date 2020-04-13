@@ -211,7 +211,7 @@ class TestShortestPath(unittest.TestCase):
         self.assertEqual(minimax(board), (2, 2))
 
     def test_minimax_prevent_o_from_winning(self):
-        board = [[X, X, EMPTY],
+        board = [[X, X, O],
                  [O, O, EMPTY],
                  [EMPTY, EMPTY, EMPTY]]
         self.assertEqual(minimax(board), (1, 2))

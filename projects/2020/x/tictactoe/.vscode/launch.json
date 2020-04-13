@@ -12,7 +12,7 @@
       "console": "integratedTerminal"
     },
     {
-      "name": "Python: Run degrees.py",
+      "name": "Python: Run runner.py",
       "type": "python",
       "request": "launch",
       "program": "${workspaceFolder}/runner.py",
