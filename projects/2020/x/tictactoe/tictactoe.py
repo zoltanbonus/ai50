@@ -124,8 +124,6 @@ def minimax(board):
         return None
 
     currentPlayer = player(board)
-    # X tries to maximize score (MAX(X))
-    # O tries to minimize score (MIN(O))
     if currentPlayer == X:
         return max_value(board)[1]
     else:
@@ -140,9 +138,13 @@ def max_value(board):
     optimalAction = None
     for action in actions(board):
         possibleResult = min_value(result(board, action))
-        if (possibleResult[0] > value):
+        if possibleResult[0] > value:
             value = possibleResult[0]
             optimalAction = action
+
+        # Poor Man's Alpha-Beta Pruning
+        if value == 1:
+            break
 
     return (value, optimalAction)
 
@@ -155,8 +157,12 @@ def min_value(board):
     optimalAction = None
     for action in actions(board):
         possibleResult = max_value(result(board, action))
-        if (possibleResult[0] < value):
+        if possibleResult[0] < value:
             value = possibleResult[0]
             optimalAction = action
+
+        # Poor Man's Alpha-Beta Pruning
+        if value == -1:
+            break
 
     return (value, optimalAction)
