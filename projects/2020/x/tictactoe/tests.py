@@ -1,5 +1,5 @@
 import unittest
-from tictactoe import player, X, EMPTY, O, initial_state, actions, result, winner
+from tictactoe import player, X, EMPTY, O, initial_state, actions, result, winner, terminal, utility, minimax
 
 
 class TestShortestPath(unittest.TestCase):
@@ -133,7 +133,7 @@ class TestShortestPath(unittest.TestCase):
         board = [[X, O, X],
                  [O, O, O],
                  [EMPTY, X, X]]
-        self.assertEqual(winner(board), X)
+        self.assertEqual(winner(board), O)
 
     def test_winner_horizontal_2(self):
         board = [[X, O, X],
@@ -152,6 +152,69 @@ class TestShortestPath(unittest.TestCase):
                  [O, X, EMPTY],
                  [X, X, O]]
         self.assertEqual(winner(board), X)
+
+    def test_terminal_initial_state(self):
+        self.assertEqual(terminal(initial_state()), False)
+
+    def test_terminal_mid_game(self):
+        board = [[X, EMPTY, X],
+                 [O, O, EMPTY],
+                 [X, EMPTY, EMPTY]]
+        self.assertEqual(terminal(board), False)
+
+    def test_terminal_tie(self):
+        board = [[X, X, O],
+                 [O, O, X],
+                 [X, O, X]]
+        self.assertEqual(terminal(board), True)
+
+    def test_terminal_x_wins(self):
+        board = [[X, O, O],
+                 [O, X, EMPTY],
+                 [O, X, X]]
+        self.assertEqual(terminal(board), True)
+
+    def test_utility_x_wins(self):
+        board = [[X, O, O],
+                 [O, X, EMPTY],
+                 [O, X, X]]
+        self.assertEqual(utility(board), 1)
+
+    def test_utility_o_wins(self):
+        board = [[O, O, O],
+                 [X, X, EMPTY],
+                 [O, X, X]]
+        self.assertEqual(utility(board), -1)
+
+    def test_utility_tie(self):
+        board = [[X, X, O],
+                 [O, O, X],
+                 [X, O, X]]
+        self.assertEqual(utility(board), 0)
+
+    def test_minimax_terminal(self):
+        board = [[X, X, O],
+                 [O, O, X],
+                 [X, O, X]]
+        self.assertEqual(minimax(board), None)
+
+    def test_minimax_x_wins(self):
+        board = [[X, X, EMPTY],
+                 [O, O, EMPTY],
+                 [EMPTY, EMPTY, EMPTY]]
+        self.assertEqual(minimax(board), (0, 2))
+
+    def test_minimax_tie(self):
+        board = [[X, X, O],
+                 [O, O, X],
+                 [X, O, EMPTY]]
+        self.assertEqual(minimax(board), (2, 2))
+
+    def test_minimax_prevent_o_from_winning(self):
+        board = [[X, X, EMPTY],
+                 [O, O, EMPTY],
+                 [EMPTY, EMPTY, EMPTY]]
+        self.assertEqual(minimax(board), (1, 2))
 
 
 if __name__ == '__main__':
