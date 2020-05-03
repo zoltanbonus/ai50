@@ -126,9 +126,8 @@ class Sentence():
         """
         if cell in self.cells:
             self.cells.remove(cell)
-
-        if self.count > 0:
-            self.count = self.count-1
+            if self.count > 0:
+                self.count = self.count-1
 
     def mark_safe(self, cell):
         """
@@ -182,7 +181,7 @@ class MinesweeperAI():
         """
         Called when the Minesweeper board tells us, for a given
         safe cell, how many neighboring cells have mines in them.
-        """
+        """        
         #  1) mark the cell as a move that has been made
         self.moves_made.add(cell)
 
@@ -191,48 +190,98 @@ class MinesweeperAI():
 
         # 3) add a new sentence to the AI's knowledge base based on the value of `cell` and `count`
         # ??? Be sure to only include cells whose state is still undetermined in the sentence.
-        neighbors = self.get_neighbor_cells(cell[0], cell[1])      
-        sentence = Sentence(neighbors, count)
-        self.knowledge.append(sentence)
-   
+        neighbors = self.get_neighbor_cells(cell[0], cell[1])
+        newCells = set()
+        for neighbor in neighbors:
+            if neighbor not in self.safes:
+                newCells.add(neighbor)
+
+        sentence = Sentence(newCells, count)
+        if sentence not in self.knowledge:
+            self.knowledge.append(sentence)
+
         # 4) mark any additional cells as safe or as mines if it can be concluded based on the AI's knowledge base
+        self.mark_cells(self.mines, self.safes)
 
         # 5) add any new sentences to the AI's knowledge base if they can be inferred from existing knowledge
-        
+        self.infer_sentences()
+        self.mark_cells(self.mines, self.safes)
+        print("Safes: " + str(self.safes-self.moves_made))
+        print("Mines: " + str(self.mines))
+
+    def mark_cells(self, mines, safes):
+        newSafes = set()
+        newMines = set()
+        for sentence in self.knowledge:
+            #for move in self.moves_made:
+                #if move not in safes:
+                #    sentence.mark_safe(move)           
+
+            for safe in sentence.known_safes():
+                if safe not in newSafes and safe not in safes:
+                    newSafes.add(safe)
+
+            for mine in sentence.known_mines():
+                if mine not in newMines and mine not in mines:
+                    newMines.add(mine)
+
+        for newSafe in newSafes:
+            self.mark_safe(newSafe)
+
+        for newMine in newMines:
+            self.mark_mine(newMine)
+
+
+    def infer_sentences(self):
+        #   Any time we have two sentences set1 = count1 and set2 = count2 where set1 is a subset of set2,
+        #   then we can construct the new sentence set2 - set1 = count2 - count1
+        newSentences = []
+        for sentence1 in self.knowledge:
+            for sentence2 in self.knowledge:
+                if sentence1 != sentence2 and len(sentence1.cells) > 0 and len(sentence2.cells) > 0 and sentence1.cells.issubset(sentence2.cells):
+                    newSet = sentence2.cells-sentence1.cells                    
+                    newCount = sentence2.count - sentence1.count
+                    if len(newSet) > 0 and newCount > -1:
+                        newSentences.append(Sentence(newSet, newCount))
+
+        for newSentence in newSentences:
+            if newSentence not in self.knowledge:                
+                self.knowledge.append(newSentence)
+
 
     def get_neighbor_cells(self, i, j):
         cells = set()
 
         # Upper left corder
-        if i>0 and j>0:
+        if i > 0 and j > 0:
             cells.add((i-1, j-1))
 
         # North
-        if i>0:
+        if i > 0:
             cells.add((i-1, j))
 
         # Upper right
-        if i>0 and j<self.width-1:
+        if i > 0 and j < self.width-1:
             cells.add((i-1, j+1))
 
         # East
-        if j<self.width-1:
+        if j < self.width-1:
             cells.add((i, j+1))
 
         # Lower right
-        if i<self.height-1 and j<self.width-1:
+        if i < self.height-1 and j < self.width-1:
             cells.add((i+1, j+1))
 
         # South
-        if i<self.height-1:
+        if i < self.height-1:
             cells.add((i+1, j))
 
         # Lower left
-            if i<self.height-1 and j>0:
+            if i < self.height-1 and j > 0:
                 cells.add((i+1, j-1))
 
         # West
-        if j>0:
+        if j > 0:
             cells.add((i, j-1))
 
         return cells
@@ -246,7 +295,15 @@ class MinesweeperAI():
         This function may use the knowledge in self.mines, self.safes
         and self.moves_made, but should not modify any of those values.
         """
-        raise NotImplementedError
+        if len(self.safes) == 0:
+            return None
+
+        for safe in self.safes:
+            if safe not in self.moves_made and safe not in self.mines:
+                print("Selected safe cell: " + str(safe))
+                return safe
+
+        return None
 
     def make_random_move(self):
         """
@@ -255,4 +312,10 @@ class MinesweeperAI():
             1) have not already been chosen, and
             2) are not known to be mines
         """
-        raise NotImplementedError
+        for i in range(self.height-1):
+            for j in range(self.width-1):
+                cell = (i, j)
+                if cell not in self.moves_made and cell not in self.mines:
+                    return cell
+
+        return None
