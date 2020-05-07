@@ -213,10 +213,6 @@ class MinesweeperAI():
         newSafes = set()
         newMines = set()
         for sentence in self.knowledge:
-            #for move in self.moves_made:
-                #if move not in safes:
-                #    sentence.mark_safe(move)           
-
             for safe in sentence.known_safes():
                 if safe not in newSafes and safe not in safes:
                     newSafes.add(safe)
