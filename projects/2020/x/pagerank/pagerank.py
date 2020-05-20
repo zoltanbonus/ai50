@@ -57,24 +57,27 @@ def transition_model(corpus, page, damping_factor):
     linked to by `page`. With probability `1 - damping_factor`, choose
     a link at random chosen from all pages in the corpus.
     """
+    numberOfDecimals = 4
     result = {}
-    entry = corpus[page]
-    totalNumberOfPages = len(entry) + 1
-    if totalNumberOfPages == 1:
-        equalProbability = round(1 / len(corpus), 2)
+    currentPage = corpus[page]
+    totalNumberOfPages = len(corpus)
+
+    if len(currentPage) == 0:
+        equalProbability = round(1 / len(corpus), numberOfDecimals)
         for x in corpus:
             result[x] = equalProbability
 
         return result
     
-    randomProbability = round(1 - damping_factor, 2)
-    randomProbabilityPerPage = round(randomProbability / totalNumberOfPages, 2)
-    probabilityPerPage = damping_factor / len(entry)
+    randomProbability = round(1 - damping_factor, numberOfDecimals)
+    randomProbabilityPerPage = round(randomProbability / totalNumberOfPages, numberOfDecimals)
+    probabilityPerPage = round(damping_factor / len(currentPage), numberOfDecimals)
 
-    result[page] = randomProbabilityPerPage
+    for x in corpus.keys():
+        result[x] = randomProbabilityPerPage   
 
-    for x in entry:
-        result[x] = probabilityPerPage + randomProbabilityPerPage
+    for x in currentPage:
+        result[x] = round(probabilityPerPage + randomProbabilityPerPage, numberOfDecimals)
     
     return result
 
@@ -88,7 +91,27 @@ def sample_pagerank(corpus, damping_factor, n):
     their estimated PageRank value (a value between 0 and 1). All
     PageRank values should sum to 1.
     """
-    raise NotImplementedError
+    result = {}
+    for page in corpus.keys():
+        result[page] = 0
+
+    for i in range(n):
+        if i == 0:
+            page = random.choice(list(corpus.keys()))
+
+        model = transition_model(corpus, page, damping_factor)
+        for key in model.keys():
+            result[key] = result[key] + model[key]
+
+        population = list(model.keys())
+        weights = list(model.values())
+        page = random.choices(population, weights=weights)[0]
+
+    for key in result.keys():
+        result[key] = round(result[key] / n, 4)
+        
+    return result
+        
 
 
 def iterate_pagerank(corpus, damping_factor):

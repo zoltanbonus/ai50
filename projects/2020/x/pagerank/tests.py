@@ -1,5 +1,5 @@
 import unittest
-from pagerank import transition_model 
+from pagerank import transition_model, sample_pagerank
 
 class TestPageRank(unittest.TestCase):
     def test_transition_model_example(self):
@@ -21,6 +21,23 @@ class TestPageRank(unittest.TestCase):
         result = transition_model(corpus, page, damping_factor)
 
         self.assertEqual(result, expected)
+
+    def test_transition_model_random(self):
+        corpus = {"1.html": {"2.html", "3.html"}, "2.html": {"3.html"}, "3.html": {"2.html"}}
+        page = "2.html"
+        damping_factor = 0.85
+        expected = {"1.html": 0.05, "2.html": 0.05, "3.html": 0.9}
+
+        result = transition_model(corpus, page, damping_factor)
+
+        self.assertEqual(result, expected)
+
+    def test_sample_pagerank(self):
+        corpus = {"1.html": {"2.html", "3.html"}, "2.html": {"3.html"}, "3.html": {"2.html"}}
+        damping_factor = 0.85
+        n = 100
+        result = sample_pagerank(corpus, damping_factor, n)
+
 
 
 if __name__ == '__main__':
