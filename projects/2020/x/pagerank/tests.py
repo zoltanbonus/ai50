@@ -1,5 +1,5 @@
 import unittest
-from pagerank import transition_model, sample_pagerank
+from pagerank import transition_model, sample_pagerank, iterate_pagerank, links_to_page
 
 class TestPageRank(unittest.TestCase):
     def test_transition_model_example(self):
@@ -37,7 +37,39 @@ class TestPageRank(unittest.TestCase):
         damping_factor = 0.85
         n = 100
         result = sample_pagerank(corpus, damping_factor, n)
+        
+        self.assertEqual(1, round(sum(result.values()), 3))
 
+    def test_links_top_page_1(self):
+        corpus = {"1.html": {"2.html", "3.html"}, "2.html": {"3.html"}, "3.html": {"2.html"}}
+        page = "1.html"
+        expected = set()
+
+        self.assertEqual(expected, links_to_page(corpus, page))
+
+
+    def test_links_top_page_2(self):
+        corpus = {"1.html": {"2.html", "3.html"}, "2.html": {"3.html"}, "3.html": {"2.html"}}
+        page = "2.html"
+        expected = {"1.html", "3.html"}
+
+        self.assertEqual(expected, links_to_page(corpus, page))
+
+
+    def test_links_top_page_3(self):
+        corpus = {"1.html": {"2.html", "3.html"}, "2.html": {"3.html"}, "3.html": {"2.html"}}
+        page = "3.html"
+        expected = {"1.html", "2.html"}
+
+        self.assertEqual(expected, links_to_page(corpus, page))
+        
+
+    def test_iterate_pagerank(self):
+        corpus = {"1.html": {"2.html", "3.html"}, "2.html": {"3.html"}, "3.html": {"2.html"}}
+        damping_factor = 0.85
+
+        result = iterate_pagerank(corpus, damping_factor)
+        self.assertEqual(1, round(sum(result.values()), 2))
 
 
 if __name__ == '__main__':

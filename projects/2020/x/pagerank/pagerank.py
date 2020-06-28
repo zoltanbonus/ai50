@@ -2,6 +2,7 @@ import os
 import random
 import re
 import sys
+import copy
 
 DAMPING = 0.85
 SAMPLES = 10000
@@ -109,9 +110,8 @@ def sample_pagerank(corpus, damping_factor, n):
 
     for key in result.keys():
         result[key] = round(result[key] / n, 4)
-        
-    return result
-        
+
+    return result        
 
 
 def iterate_pagerank(corpus, damping_factor):
@@ -123,7 +123,50 @@ def iterate_pagerank(corpus, damping_factor):
     their estimated PageRank value (a value between 0 and 1). All
     PageRank values should sum to 1.
     """
-    raise NotImplementedError
+    pagerank_threshold = 0.001
+    N = len(corpus)
+    randomRank = (1-damping_factor)/N
+    pageranks = {}
+    for page in corpus.keys():
+        pageranks[page] = 1 / N
+
+    iterate_more = True
+    while iterate_more:
+        previous_pageranks = copy.deepcopy(pageranks)
+        for page in corpus.keys():
+            pageranks[page] = pagerank(corpus, pageranks, page, damping_factor, randomRank)
+
+        all_pages_stable = True
+        for page in pageranks:
+            if abs(previous_pageranks[page]-pageranks[page]) > pagerank_threshold:
+                all_pages_stable = False
+                break
+
+        if all_pages_stable:
+            iterate_more = False
+
+    return pageranks
+
+
+def pagerank(corpus, pageranks, page, damping_factor, randomRank):
+    sum = 0
+    for link in links_to_page(corpus, page):
+        num_links = len(corpus[link])
+        if num_links == 0:
+            num_links = len(corpus)
+
+        sum = sum + (pageranks[link] / num_links)
+
+    return randomRank + (damping_factor * sum)
+    
+
+def links_to_page(corpus, page):
+    links = set()
+    for currentPage in corpus.keys():
+        if page in corpus[currentPage]:
+            links.add(currentPage)
+
+    return links
 
 
 if __name__ == "__main__":
