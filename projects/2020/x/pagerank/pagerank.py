@@ -132,30 +132,28 @@ def iterate_pagerank(corpus, damping_factor):
 
     iterate_more = True
     while iterate_more:
+        iterate_more = False
         previous_pageranks = copy.deepcopy(pageranks)
         for page in corpus.keys():
-            pageranks[page] = pagerank(corpus, pageranks, page, damping_factor, randomRank)
+            pageranks[page] = pagerank(corpus, previous_pageranks, page, damping_factor, randomRank)
 
-        all_pages_stable = True
         for page in pageranks:
             if abs(previous_pageranks[page]-pageranks[page]) > pagerank_threshold:
-                all_pages_stable = False
+                iterate_more = True
                 break
 
-        if all_pages_stable:
-            iterate_more = False
-
-    return pageranks
+    return previous_pageranks
 
 
 def pagerank(corpus, pageranks, page, damping_factor, randomRank):
     sum = 0
+
     for link in links_to_page(corpus, page):
         num_links = len(corpus[link])
         if num_links == 0:
             num_links = len(corpus)
 
-        sum = sum + (pageranks[link] / num_links)
+        sum += (pageranks[link] / num_links)
 
     return randomRank + (damping_factor * sum)
     
@@ -163,7 +161,7 @@ def pagerank(corpus, pageranks, page, damping_factor, randomRank):
 def links_to_page(corpus, page):
     links = set()
     for currentPage in corpus.keys():
-        if page in corpus[currentPage]:
+        if page in corpus[currentPage] or corpus[currentPage] == set():
             links.add(currentPage)
 
     return links

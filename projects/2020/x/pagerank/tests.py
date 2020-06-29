@@ -69,7 +69,19 @@ class TestPageRank(unittest.TestCase):
         damping_factor = 0.85
 
         result = iterate_pagerank(corpus, damping_factor)
-        self.assertEqual(1, round(sum(result.values()), 2))
+        self.assertEqual(1, round(sum(result.values()), 4))
+
+        
+    def test_iterate_pagerank_corpus0(self):
+        corpus = {"1.html": {"2.html"}, "2.html": {"1.html", "3.html"}, "3.html": {"2.html", "4.html"}, "4.html": {"2.html"}}
+        damping_factor = 0.85
+
+        result = iterate_pagerank(corpus, damping_factor)
+        self.assertEqual(1, round(sum(result.values()), 4))
+        self.assertEqual(0.2202, round(result["1.html"], 4))
+        self.assertEqual(0.4289, round(result["2.html"], 4))
+        self.assertEqual(0.2202, round(result["3.html"], 4))
+        self.assertEqual(0.1307, round(result["4.html"], 4))
 
 
 if __name__ == '__main__':
