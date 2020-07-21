@@ -49,17 +49,17 @@ class TestPageRank(unittest.TestCase):
         self.assertEqual(probabilities["Harry"]["trait"][True], p)
         self.assertEqual(probabilities["Harry"]["trait"][False], 0)
 
-        self.assertEqual(probabilities["Lily"]["gene"][0], 0)
+        self.assertEqual(probabilities["Lily"]["gene"][0], p)
         self.assertEqual(probabilities["Lily"]["gene"][1], 0)
         self.assertEqual(probabilities["Lily"]["gene"][2], 0)
         self.assertEqual(probabilities["Lily"]["trait"][True], 0)
-        self.assertEqual(probabilities["Lily"]["trait"][False], 0)
+        self.assertEqual(probabilities["Lily"]["trait"][False], p)
 
         self.assertEqual(probabilities["James"]["gene"][0], 0)
         self.assertEqual(probabilities["James"]["gene"][1], p)
         self.assertEqual(probabilities["James"]["gene"][2], 0)
         self.assertEqual(probabilities["James"]["trait"][True], 0)
-        self.assertEqual(probabilities["James"]["trait"][False], 0)
+        self.assertEqual(probabilities["James"]["trait"][False], p)
 
 
     def test_normalize_traits(self):

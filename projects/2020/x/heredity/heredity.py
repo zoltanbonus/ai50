@@ -142,32 +142,32 @@ def joint_probability(people, one_gene, two_genes, have_trait):
     probabilities = set()
 
     for person in people:
-        genes = numberOfGenes(person, one_gene, two_genes)
-        trait = hasTrait(person, have_trait)
+        genes = number_of_genes(person, one_gene, two_genes)
+        trait = has_trait(person, have_trait)
+        trait_prob = PROBS["trait"][genes][trait]
        
         mother = people[person]["mother"]
         father = people[person]["father"]
         
-        geneProbability = 1;
+        gene_prob = 1
         if mother == None and father == None:
-            geneProbability = PROBS["gene"][genes]
+            gene_prob = PROBS["gene"][genes]
         else:
-            motherGenes = numberOfGenes(mother, one_gene, two_genes)            
-            fatherGenes = numberOfGenes(father, one_gene, two_genes)
+            mother_genes = number_of_genes(mother, one_gene, two_genes)            
+            father_genes = number_of_genes(father, one_gene, two_genes)
             
-            motherHeredityProb = heredityProbability(motherGenes)
-            fatherHeredityProb = heredityProbability(fatherGenes)
+            mother_heredity_prob = heredity_probability(mother_genes)
+            father_heredity_prob = heredity_probability(father_genes)
 
             # Case 1: gets the gene from his mother and NOT his father
-            prob1 = motherHeredityProb * (1-fatherHeredityProb)
+            prob1 = mother_heredity_prob * (1-father_heredity_prob)
 
             # Case 2: gets the gene from his father and NOT his mother
-            prob2 = fatherHeredityProb * (1-motherHeredityProb)
+            prob2 = father_heredity_prob * (1-mother_heredity_prob)
 
-            geneProbability = prob1 + prob2
+            gene_prob = prob1 + prob2
 
-        traitProbability = PROBS["trait"][genes][trait]
-        probabilities.add(geneProbability * traitProbability)
+        probabilities.add(gene_prob * trait_prob)
 
     result = 1
     for prob in probabilities:
@@ -176,25 +176,29 @@ def joint_probability(people, one_gene, two_genes, have_trait):
     return result
 
 
-def heredityProbability(genes):
+def heredity_probability(genes):
     if genes == 0:
         return PROBS["mutation"]
-    else:
+    
+    if genes == 1:
+        return 0.5
+
+    if genes == 2:
         return 1-PROBS["mutation"]
 
 
-def numberOfGenes(person, one_gene, two_genes):
-    numberOfGenes = 0
+def number_of_genes(person, one_gene, two_genes):
+    number_of_genes = 0
     if person in one_gene:
-        numberOfGenes = 1
+        number_of_genes = 1
 
     if person in two_genes:
-        numberOfGenes = 2
+        number_of_genes = 2
 
-    return numberOfGenes
+    return number_of_genes
 
 
-def hasTrait(person, have_trait):
+def has_trait(person, have_trait):
     trait = False
     if person in have_trait:
         trait = True
@@ -210,14 +214,11 @@ def update(probabilities, one_gene, two_genes, have_trait, p):
     the person is in `have_gene` and `have_trait`, respectively.
     """
     for person in probabilities:
-        genes = numberOfGenes(person, one_gene, two_genes)
-        trait = hasTrait(person, have_trait)
+        genes = number_of_genes(person, one_gene, two_genes)
+        trait = has_trait(person, have_trait)
        
-        if genes > 0:
-            probabilities[person]["gene"][genes] += p
-        
-        if trait:
-            probabilities[person]["trait"][trait] += p
+        probabilities[person]["gene"][genes] += p
+        probabilities[person]["trait"][trait] += p
 
 
 def normalize(probabilities):
